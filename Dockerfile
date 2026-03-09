@@ -14,9 +14,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Instalar navegador Chromium para Playwright
-RUN playwright install chromium
-RUN playwright install-deps chromium
+# Instalar Chromium usando python -m playwright (evita problemas de PATH)
+RUN python -m playwright install chromium
+RUN python -m playwright install-deps chromium
 
 # Copiar el resto del proyecto
 COPY . .
