@@ -46,18 +46,18 @@
         .icono-estacion-svg { background-color: #bbd4f0; mask: url('/static/images/estacion.svg') no-repeat center / contain; -webkit-mask: url('/static/images/estacion.svg') no-repeat center / contain; width: 16px; height: 16px; }
 
         /* Bottom sheet horarios */
-        #site-footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 34px; background-color: #0b1622; border-top: 1px solid #233652; z-index: 1999; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 20px; }
+        #site-footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 34px; background-color: #0b1622; border-top: 1px solid #233652; z-index: 2999; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 20px; }
         #site-footer span { color: #b0b8c4; font-size: 0.75rem; }
         #site-footer a { color: #4a90e2; font-size: 0.75rem; text-decoration: none; }
         #site-footer a:hover { text-decoration: underline; }
         #site-footer .sep { color: #2a3f5a; }
-        #bottom-sheet { position: fixed; bottom: 34px; left: 0; width: 100%; background-color: #162438; border-top: 3px solid #4a90e2; z-index: 2000; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(calc(100% - 50px)); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); border-radius: 16px 16px 0 0; }
+        #bottom-sheet { position: fixed; bottom: 34px; left: 0; width: 100%; background-color: #162438; border-top: 3px solid #4a90e2; z-index: 1998; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(calc(100% - 50px)); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); border-radius: 16px 16px 0 0; }
         #bottom-sheet.is-expanded { transform: translateY(0); }
         .sheet-header { height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #4a90e2; font-size: 1.1rem; font-weight: 700; user-select: none; }
         .sheet-content { height: 45vh; padding: 20px; overflow-y: auto; background-color: #0b1622; }
         .table-adif { color: #d5e9ff; font-size: 0.95rem; border-collapse: separate; border-spacing: 0; }
         .table-adif th { color: #4a90e2; border-bottom: 2px solid #1a3050; background: #0d1b2a; position: sticky; top: 0; z-index: 10; padding: 10px 12px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
-        .table-adif td { border-bottom: 1px solid #1a2d42; vertical-align: top; padding: 10px 12px; }
+        .table-adif td { border-bottom: 0px solid #1a2d42; vertical-align: top; padding: 10px 12px; }
         .table-adif tbody tr { transition: background 0.15s; }
         .table-adif tbody tr:hover { background-color: #172336; }
         .hora-salida { color: #4a90e2; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
