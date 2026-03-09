@@ -831,7 +831,7 @@ function renderizarTeleindicador() {
         // ── HTML de la fila ───────────────────────────────────────────────
         const badgeProd  = `<span class="badge ${prod.badge}" style="font-size:0.75rem;">${prod.nombre}</span>`;
         const badgeLinea = linea ? `<span class="badge bg-dark border ms-1" style="font-size:0.72rem; color:#4a90e2; border-color:#233652 !important;">${linea}</span>` : '';
-        const numHtml    = numTren ? `<div style="color:#5a7a9a; font-size:0.72rem; margin-top:3px; font-family:monospace;">#${numTren}</div>` : '';
+        const numHtml    = numTren ? `<div style="color:#5a7a9a; font-size:0.72rem; margin-top:3px;">Tren nº ${numTren}</div>` : '';
 
         tbody.innerHTML += `<tr>
             <td class="fw-bold" style="color:#4a90e2; font-size:1.15rem; white-space:nowrap; vertical-align:top; padding-top:14px;">${hora}</td>
