@@ -518,7 +518,7 @@ function vincularAlertasYTrenes() {
 
             if (alertasLinea.length > 0) {
                 marker.setIcon(crearIcono('#dc3545'));
-                let popup = `<div style="color:#333;max-width:260px;"><strong style="color:#dc3545;">Línea ${tren.linea}</strong> <span class="text-muted">(${tren.provincia})</span><br><small>${tren.nombre}</small><hr style="margin:8px 0;">`;
+                let popup = `<div style="color:#333;max-width:260px;"><strong style="color:#dc3545;">Línea ${tren.linea}</strong> <span class="text-muted-aviso">(${tren.provincia})</span><br><small>${tren.nombre}</small><hr style="margin:8px 0;">`;
                 const mostrados = new Set();
                 alertasLinea.forEach(al => {
                     if (!mostrados.has(al.titulo)) {
