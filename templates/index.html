@@ -48,11 +48,17 @@
         #bottom-sheet.is-expanded { transform: translateY(0); }
         .sheet-header { height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #4a90e2; font-size: 1.1rem; font-weight: 700; user-select: none; }
         .sheet-content { height: 45vh; padding: 20px; overflow-y: auto; background-color: #0b1622; }
-        .table-adif { color: #e0e0e0; font-size: 0.95rem; }
-        .table-adif th { color: #4a90e2; border-bottom: 2px solid #233652; background: #162438; position: sticky; top: 0; z-index: 10; }
-        .table-adif td { border-bottom: 1px solid #1f2d3d; vertical-align: middle; padding: 12px 8px; }
-        .table-adif tbody tr:hover { background-color: #162438; }
-        .via-glow { color: #f39c12; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 5px rgba(243,156,18,0.5); }
+        .table-adif { color: #e0e0e0; font-size: 0.95rem; border-collapse: separate; border-spacing: 0; }
+        .table-adif th { color: #4a90e2; border-bottom: 2px solid #1a3050; background: #0d1b2a; position: sticky; top: 0; z-index: 10; padding: 10px 12px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+        .table-adif td { border-bottom: 1px solid #1a2d42; vertical-align: top; padding: 10px 12px; }
+        .table-adif tbody tr { transition: background 0.15s; }
+        .table-adif tbody tr:hover { background-color: #172336; }
+        .hora-salida { color: #4a90e2; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+        .hora-origen { color: #4a6a8a; font-size: 0.7rem; margin-top: 4px; font-style: italic; }
+        .paradas-list { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
+        .parada-chip { background: #0d1b2a; border: 1px solid #1f3450; border-radius: 4px; padding: 1px 7px; font-size: 0.7rem; color: #7a9bbf; white-space: nowrap; }
+        .via-glow { color: #f39c12; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 8px rgba(243,156,18,0.4); }
+        .dest-nombre { color: #e8f0f8; font-weight: 600; font-size: 0.95rem; }
         .leaflet-container { background: #0f1d2e; }
 
         @media (max-width: 768px) { .map-overlays { width: calc(100% - 30px); left: 15px; right: 15px; } }
@@ -173,8 +179,8 @@
                 <table class="table table-borderless table-adif w-100">
                     <thead>
                         <tr>
-                            <th style="width:9%;">Hora</th>
-                            <th style="width:16%;">Producto</th>
+                            <th style="width:9%;">Hora salida</th>
+                            <th style="width:16%;">Tipo de tren</th>
                             <th>Destino / Paradas</th>
                             <th class="text-center" style="width:6%;">Vía</th>
                             <th class="text-end" style="width:12%;">Estado</th>
@@ -814,34 +820,39 @@ function renderizarTeleindicador() {
         }
 
         // ── Paradas intermedias ───────────────────────────────────────────
-        // journey_stops_destination contiene los códigos de paradas hasta el destino
         const stopsRaw = tren.journey_stops_destination || [];
-        const paradas  = stopsRaw
-            .map(s => stationName(s.code))
-            .filter(Boolean);
-        // Excluir la última (ya es el destino final)
+        const paradas  = stopsRaw.map(s => stationName(s.code)).filter(Boolean);
         const paradasSinFinal = paradas.slice(0, -1);
 
         const paradasHtml = paradasSinFinal.length > 0
-            ? `<div style="font-size:0.72rem; color:#8a9bb0; line-height:1.7;">
-                ${paradasSinFinal.map(p => `<span style="margin-right:6px;">· ${p}</span>`).join('')}
-               </div>`
-            : `<span style="color:#3a4a5a; font-size:0.75rem;">—</span>`;
+            ? `<div class="paradas-list">${paradasSinFinal.map(p => `<span class="parada-chip">${p}</span>`).join('')}</div>`
+            : '';
+
+        // ── Estación de origen (donde está el usuario) ────────────────────
+        const origenNombre = codigoEstacionActual
+            ? stationName(codigoEstacionActual)
+            : '';
+        const origenHtml = origenNombre
+            ? `<div class="hora-origen"><i class="fas fa-map-marker-alt me-1" style="font-size:0.65rem;"></i>${origenNombre}</div>`
+            : '';
 
         // ── HTML de la fila ───────────────────────────────────────────────
         const badgeProd  = `<span class="badge ${prod.badge}" style="font-size:0.75rem;">${prod.nombre}</span>`;
         const badgeLinea = linea ? `<span class="badge bg-dark border ms-1" style="font-size:0.72rem; color:#4a90e2; border-color:#233652 !important;">${linea}</span>` : '';
-        const numHtml    = numTren ? `<div style="color:#5a7a9a; font-size:0.72rem; margin-top:3px;">Tren nº ${numTren}</div>` : '';
+        const numHtml    = numTren ? `<div style="color:#4a6a8a; font-size:0.7rem; margin-top:4px;">Tren nº ${numTren}</div>` : '';
 
         tbody.innerHTML += `<tr>
-            <td class="fw-bold" style="color:#4a90e2; font-size:1.15rem; white-space:nowrap; vertical-align:top; padding-top:14px;">${hora}</td>
-            <td style="vertical-align:top; padding-top:12px;">${badgeProd}${badgeLinea}${numHtml}</td>
-            <td style="vertical-align:top; padding-top:12px;">
-                <div class="fw-bold" style="color:#e0e0e0;">${destNombre}</div>
+            <td style="white-space:nowrap; vertical-align:top;">
+                <div class="hora-salida">${hora}</div>
+                ${origenHtml}
+            </td>
+            <td style="vertical-align:top; padding-top:10px;">${badgeProd}${badgeLinea}${numHtml}</td>
+            <td style="vertical-align:top; padding-top:10px;">
+                <div class="dest-nombre">${destNombre}</div>
                 ${paradasHtml}
             </td>
-            <td class="text-center" style="vertical-align:top; padding-top:14px;"><span class="via-glow">${via}</span></td>
-            <td class="text-end" style="vertical-align:top; padding-top:12px;">${estado}</td>
+            <td class="text-center" style="vertical-align:top; padding-top:12px;"><span class="via-glow">${via}</span></td>
+            <td class="text-end" style="vertical-align:top; padding-top:10px;">${estado}</td>
         </tr>`;
     });
 }
