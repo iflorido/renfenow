@@ -74,9 +74,15 @@
         .dest-nombre { color: #a8c0d6; font-weight: 600; font-size: 0.95rem; }
         .leaflet-container { background: #0f1d2e; }
 
-        @media (max-width: 768px) { .map-overlays { width: calc(100% - 90px); left: 70px; right: 15px; } 
-                                    .sheet-header { font-size: 0.8rem; }
-                                    }
+        @media (max-width: 768px) {
+            .map-overlays { width: calc(100% - 90px); left: 70px; right: 15px; }
+            .sheet-header { font-size: 0.8rem; }
+            #bottom-sheet { bottom: 28px; }
+            #site-footer { height: 28px; gap: 4px; padding: 0 12px; }
+            #site-footer .sep { display: none; }
+            #site-footer span:not(.sep) { display: none; }
+            #site-footer a { font-size: 0.7rem; }
+        }
     </style>
 </head>
 <body>
