@@ -160,20 +160,30 @@
                 </div>
             </div>
 
+            <!-- Inspector JSON temporal — quitar cuando no se necesite -->
+            <div id="json-inspector" style="display:none; background:#0b1622; border:1px solid #233652; border-radius:8px; padding:12px; margin-bottom:16px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span style="color:#4a90e2; font-size:0.8rem; font-weight:bold;"><i class="fas fa-code me-1"></i> JSON RAW (inspector)</span>
+                    <button onclick="document.getElementById('json-inspector').style.display='none'" class="btn btn-sm btn-outline-secondary" style="font-size:0.7rem;">Cerrar</button>
+                </div>
+                <pre id="json-raw" style="color:#a8c0d6; font-size:0.72rem; max-height:200px; overflow:auto; white-space:pre-wrap; word-break:break-all; margin:0;"></pre>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-borderless table-adif w-100">
                     <thead>
                         <tr>
-                            <th style="width:15%;">Hora</th>
-                            <th style="width:15%;">Tipo</th>
-                            <th style="width:40%;">Destino</th>
-                            <th class="text-center" style="width:15%;">Vía</th>
-                            <th class="text-end" style="width:15%;">Estado</th>
+                            <th style="width:10%;">Hora</th>
+                            <th style="width:18%;">Producto</th>
+                            <th style="width:35%;">Destino</th>
+                            <th style="width:22%;">Paradas</th>
+                            <th class="text-center" style="width:7%;">Vía</th>
+                            <th class="text-end" style="width:8%;">Estado</th>
                         </tr>
                     </thead>
                     <tbody id="adif-tbody">
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-5">
+                            <td colspan="6" class="text-center text-muted py-5">
                                 <i class="fas fa-train fa-3x mb-3 opacity-50"></i><br>
                                 Selecciona una Estación de Origen para ver los trenes
                             </td>
@@ -507,6 +517,15 @@ async function conectarAdif(codigo) {
                     statusBox.innerHTML  = '<i class="fas fa-circle text-success me-1"></i> En vivo';
                     statusBox.style.color = '#28a745';
                     trenesAdifActuales   = data.trains;
+
+                    // Inspector: mostrar JSON crudo del primer tren para diagnóstico
+                    const inspector = document.getElementById('json-inspector');
+                    const jsonRaw   = document.getElementById('json-raw');
+                    if (inspector && jsonRaw && data.trains.length > 0) {
+                        inspector.style.display = 'block';
+                        jsonRaw.textContent = JSON.stringify(data.trains[0], null, 2);
+                    }
+
                     renderizarTeleindicador();
                 }
             } catch(e) { console.error('Error parseando datos ADIF:', e); }
@@ -632,6 +651,65 @@ window.limpiarDestino = function(debeRenderizar = true) {
 // ============================================================
 // 7. TABLA DE HORARIOS
 // ============================================================
+
+// Formatea ISO 8601 → "HH:MM"
+function formatHora(isoStr) {
+    if (!isoStr) return '--:--';
+    try {
+        return new Date(isoStr).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
+    } catch(e) { return isoStr; }
+}
+
+// Devuelve badge y nombre de producto a partir de traffic_type y commercial_id
+function getProductoBadge(tren) {
+    const tipo    = tren.traffic_type || '';
+    const product = tren.commercial_id?.[0]?.product || '';
+    const company = tren.company || '';
+
+    // Empresa no-Renfe
+    if (company === 'IRYO' || ['IRYO','IRY'].includes(product))
+        return { badge: 'bg-danger', nombre: 'Iryo' };
+    if (company === 'OUIGO' || ['OUIGO','OUI'].includes(product))
+        return { badge: 'bg-info text-dark', nombre: 'Ouigo' };
+
+    // Por producto específico
+    const map = {
+        'AVE': { badge: 'bg-warning text-dark', nombre: 'AVE' },
+        'AVE624': { badge: 'bg-warning text-dark', nombre: 'AVE' },
+        'ALVIA': { badge: 'bg-warning text-dark', nombre: 'Alvia' },
+        'AVANT': { badge: 'bg-warning text-dark', nombre: 'Avant' },
+        'AVA':   { badge: 'bg-warning text-dark', nombre: 'Avant' },
+        'AVLO':  { badge: 'bg-success', nombre: 'Avlo' },
+        'CERCAN':{ badge: 'bg-danger', nombre: 'Cercanías' },
+        'MD':    { badge: 'bg-secondary', nombre: 'Media Dist.' },
+        'REX':   { badge: 'bg-secondary', nombre: 'Reg. Exprés' },
+        'ICITY': { badge: 'bg-primary', nombre: 'Intercity' },
+        'INTC':  { badge: 'bg-primary', nombre: 'Intercity' },
+    };
+    if (map[product]) return map[product];
+
+    // Por tipo de tráfico
+    if (tipo === 'C') return { badge: 'bg-danger',              nombre: 'Cercanías' };
+    if (tipo === 'A') return { badge: 'bg-warning text-dark',   nombre: 'Alta Vel.' };
+    if (tipo === 'R') return { badge: 'bg-secondary',           nombre: 'Regional' };
+    if (tipo === 'L') return { badge: 'bg-primary',             nombre: 'Larga Dist.' };
+    return { badge: 'bg-secondary', nombre: product || tipo || '?' };
+}
+
+// Extrae línea de Cercanías limpia (ej: "C-3") desde destinations[0].line
+function getLineaCercanias(tren) {
+    const raw = tren.destinations?.[0]?.line || '';
+    if (!raw) return '';
+    const limpia = raw
+        .replace(/ROD[A-Z0-9]*/g, '')
+        .replace(/CER[A-Z0-9]*/g, '')
+        .replace(/TRA[A-Z0-9]*/g, '')
+        .replace(/CIVGUACHA/g, 'CIVIS')
+        .trim();
+    // Formatear como "C-3" si es un código de línea
+    return limpia.replace(/([A-Z])0?([1-9])/g, '$1-$2').toUpperCase();
+}
+
 function renderizarTeleindicador() {
     const inputB       = document.getElementById('adif-destino-input');
     const destinoSelec = inputB ? inputB.value.toLowerCase() : '';
@@ -642,37 +720,60 @@ function renderizarTeleindicador() {
     let filtrados = trenesAdifActuales || [];
     if (destinoSelec) {
         filtrados = filtrados.filter(t =>
-            (t.destinations || []).some(d => d.name.toLowerCase().includes(destinoSelec))
+            (t.destinations || []).some(d => d.name && d.name.toLowerCase().includes(destinoSelec))
         );
     }
 
     if (filtrados.length === 0) {
+        const colspan = 6;
         tbody.innerHTML = trenesAdifActuales.length === 0
-            ? `<tr><td colspan="5" class="text-center text-muted py-4">ADIF no reporta trenes en este momento para esta estación.</td></tr>`
-            : `<tr><td colspan="5" class="text-center text-muted py-4">Ningún tren coincide con el destino "<strong>${destinoSelec}</strong>".</td></tr>`;
+            ? `<tr><td colspan="${colspan}" class="text-center text-muted py-4">ADIF no reporta trenes en este momento para esta estación.</td></tr>`
+            : `<tr><td colspan="${colspan}" class="text-center text-muted py-4">Ningún tren coincide con el destino "<strong>${destinoSelec}</strong>".</td></tr>`;
         return;
     }
 
     filtrados.forEach(tren => {
+        const hora    = formatHora(tren.departure_time || tren.arrival_time);
         const destino = tren.destinations?.[0]?.name || 'Desconocido';
-        const hora    = tren.departure_time || tren.arrival_time || '--:--';
         const via     = tren.platform || '-';
-        const tipo    = tren.traffic_type || '?';
+        const linea   = getLineaCercanias(tren);
+        const prod    = getProductoBadge(tren);
 
-        let badge = 'bg-secondary', nombreTipo = 'TREN';
-        if (tipo === 'A') { badge = 'bg-primary';            nombreTipo = 'AVE/Larga Dist.'; }
-        if (tipo === 'C') { badge = 'bg-danger';             nombreTipo = 'Cercanías'; }
-        if (tipo === 'R') { badge = 'bg-warning text-dark';  nombreTipo = 'Regional/MD'; }
-        if (tipo === 'L') { badge = 'bg-info text-dark';     nombreTipo = 'Larga Distancia'; }
+        // Paradas intermedias: tomar destinations[0].stops o destinations array
+        let paradas = [];
+        const stops = tren.destinations?.[0]?.stops;
+        if (Array.isArray(stops) && stops.length > 0) {
+            // stops puede ser array de strings o de objetos {name}
+            paradas = stops.map(s => (typeof s === 'string' ? s : s.name)).filter(Boolean);
+        } else if (Array.isArray(tren.destinations) && tren.destinations.length > 1) {
+            paradas = tren.destinations.slice(1).map(d => d.name).filter(Boolean);
+        }
 
-        const estado = tren.delay > 0
-            ? `<span class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> +${tren.delay} min</span>`
-            : `<span class="text-success"><i class="fas fa-check-circle"></i> En hora</span>`;
+        // Número comercial del tren
+        const numTren = tren.commercial_id?.[0]?.number || tren.number || '';
+
+        const estado = (tren.delay > 0)
+            ? `<span class="text-danger fw-bold" style="font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> +${tren.delay}min</span>`
+            : `<span class="text-success" style="font-size:0.85rem;"><i class="fas fa-check-circle"></i> En hora</span>`;
+
+        // Cabecera del producto: badge + línea cercanías (si aplica) + número de tren
+        const badgeProd = `<span class="badge ${prod.badge}" style="font-size:0.75rem;">${prod.nombre}</span>`;
+        const badgeLinea = linea ? `<span class="badge bg-dark border ms-1" style="font-size:0.75rem; color:#4a90e2;">${linea}</span>` : '';
+        const numHtml   = numTren ? `<div style="color:#6c757d; font-size:0.72rem; margin-top:2px;">${numTren}</div>` : '';
+
+        // Paradas: mostrar como pills pequeños
+        const paradasHtml = paradas.length > 0
+            ? `<div style="font-size:0.72rem; color:#6c757d; margin-top:3px; line-height:1.6;">
+                ${paradas.slice(0, 5).map(p => `<span style="margin-right:4px;">· ${p}</span>`).join('')}
+                ${paradas.length > 5 ? `<span style="color:#4a90e2;">+${paradas.length - 5} más</span>` : ''}
+               </div>`
+            : '<span style="color:#444; font-size:0.75rem;">—</span>';
 
         tbody.innerHTML += `<tr>
-            <td class="fw-bold" style="color:#4a90e2;font-size:1.1rem;">${hora}</td>
-            <td><span class="badge ${badge}">${nombreTipo}</span></td>
-            <td class="fw-bold">${destino}</td>
+            <td class="fw-bold" style="color:#4a90e2; font-size:1.15rem; white-space:nowrap;">${hora}</td>
+            <td>${badgeProd}${badgeLinea}${numHtml}</td>
+            <td class="fw-bold" style="color:#e0e0e0;">${destino}</td>
+            <td>${paradasHtml}</td>
             <td class="text-center"><span class="via-glow">${via}</span></td>
             <td class="text-end">${estado}</td>
         </tr>`;
