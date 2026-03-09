@@ -531,7 +531,7 @@ function vincularAlertasYTrenes() {
                 marker.bindPopup(popup + '</div>');
             } else {
                 marker.setIcon(crearIcono('#4a90e2'));
-                marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
+                marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted-aviso">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
             }
         });
     });
