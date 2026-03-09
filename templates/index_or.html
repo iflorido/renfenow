@@ -444,7 +444,7 @@
                         inputA.value = est.nombre;
                         hiddenA.value = est.codigo;
                         resA.style.display = 'none';
-                        conectarAdif(est.codigo); // AHORA SÍ SE EJECUTARÁ ESTO
+                        conectarAdif(est.codigo); 
                     };
                     resA.appendChild(div);
                 });
@@ -479,10 +479,9 @@
                 });
             });
 
-            // CORRECCIÓN: Ocultar desplegables de forma segura
             document.addEventListener('click', function(e) {
-                if (e.target !== inputA && !resA.contains(e.target)) resA.style.display = 'none';
-                if (e.target !== inputB && !resB.contains(e.target)) resB.style.display = 'none';
+                if (e.target !== inputA) resA.style.display = 'none';
+                if (e.target !== inputB) resB.style.display = 'none';
             });
         }
 
@@ -522,7 +521,7 @@
                 if(adifWs) adifWs.close();
 
                 const protocolo = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${protocolo}//${window.location.host}/ws/${codigo}`;
+                const wsUrl = `${protocol}//${window.location.host}/ws/${codigo}`;
                 console.log(`🌐 Abriendo Websocket en: ${wsUrl}`);
                 
                 adifWs = new WebSocket(wsUrl);
