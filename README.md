@@ -1,2 +1,2 @@
 # renfenow
-Dashboard interactivo con información de Renfe
+Dashboard interactivo con información de Renfe.
