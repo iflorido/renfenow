@@ -16,7 +16,9 @@
         .brand-title { color: #4a90e2; font-weight: 700; font-size: 1.25rem; margin: 0; }
         #map-container { position: relative; height: calc(100vh - 60px); width: 100%; }
         #map { height: 100%; width: 100%; z-index: 1; }
-
+        /* Tabla de horarios ADIF */
+        .table { --bs-table-accent-bg: #0b1322 !important;}
+        .table-responsive {    overflow-x: auto;    -webkit-overflow-scrolling: touch;    border-radius: 12px!important;    border: 1px solid #233652!important;    background-color: #162438; }
         /* Paneles flotantes */
         .map-overlays { position: absolute; top: 15px; right: 15px; width: 320px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; pointer-events: none; }
         .map-panel { background-color: #162438; border: 1px solid #233652; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); overflow: hidden; pointer-events: auto; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); color: #e0e0e0; }
@@ -54,7 +56,7 @@
         .table-adif tbody tr { transition: background 0.15s; }
         .table-adif tbody tr:hover { background-color: #172336; }
         .hora-salida { color: #4a90e2; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
-        .hora-origen { color: #4a6a8a; font-size: 0.7rem; margin-top: 4px; font-style: italic; }
+        .hora-origen { color: #a8c0d6; font-size: 0.7rem; margin-top: 4px; font-style: italic; }
         .paradas-list { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
         .parada-chip { background: #0d1b2a; border: 1px solid #1f3450; border-radius: 4px; padding: 1px 7px; font-size: 0.7rem; color: #7a9bbf; white-space: nowrap; }
         .via-glow { color: #f39c12; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 8px rgba(243,156,18,0.4); }
@@ -64,7 +66,7 @@
         .filtro-tipo .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; opacity: 0.5; transition: opacity 0.18s; }
         .filtro-tipo.activo .dot { opacity: 1; }
         .filtros-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 6px 0; }
-        .dest-nombre { color: #4a6a8a; font-weight: 600; font-size: 0.95rem; }
+        .dest-nombre { color: #a8c0d6; font-weight: 600; font-size: 0.95rem; }
         .leaflet-container { background: #0f1d2e; }
 
         @media (max-width: 768px) { .map-overlays { width: calc(100% - 30px); left: 15px; right: 15px; } }
@@ -901,7 +903,7 @@ function renderizarTeleindicador() {
         // ── HTML de la fila ───────────────────────────────────────────────
         const badgeProd  = `<span class="badge ${prod.badge}" style="font-size:0.75rem;">${prod.nombre}</span>`;
         const badgeLinea = linea ? `<span class="badge bg-dark border ms-1" style="font-size:0.72rem; color:#4a90e2; border-color:#233652 !important;">${linea}</span>` : '';
-        const numHtml    = numTren ? `<div style="color:#4a6a8a; font-size:0.7rem; margin-top:4px;">Tren nº ${numTren}</div>` : '';
+        const numHtml    = numTren ? `<div style="color:#a8c0d6; font-size:0.7rem; margin-top:4px;">Tren nº ${numTren}</div>` : '';
 
         tbody.innerHTML += `<tr>
             <td style="white-space:nowrap; vertical-align:top;">
