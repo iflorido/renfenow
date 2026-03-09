@@ -122,7 +122,7 @@ function procesarTrenes(trenes) {
             marcadores[tren.id].setLatLng([tren.lat, tren.lon]);
         } else {
             const marker = L.marker([tren.lat, tren.lon], {icon: crearIcono('#4a90e2')}).addTo(map);
-            marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
+            marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted-aviso">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
             marcadores[tren.id] = marker;
         }
 
@@ -261,7 +261,7 @@ function vincularAlertasYTrenes() {
 
             if (alertasLinea.length > 0) {
                 marker.setIcon(crearIcono('#dc3545'));
-                let popup = `<div style="color:#333;max-width:260px;"><strong style="color:#dc3545;">Línea ${tren.linea}</strong> <span class="text-muted">(${tren.provincia})</span><br><small>${tren.nombre}</small><hr style="margin:8px 0;">`;
+                let popup = `<div style="color:#333;max-width:260px;"><strong style="color:#dc3545;">Línea ${tren.linea}</strong> <span class="text-muted-aviso">(${tren.provincia})</span><br><small>${tren.nombre}</small><hr style="margin:8px 0;">`;
                 const mostrados = new Set();
                 alertasLinea.forEach(al => {
                     if (!mostrados.has(al.titulo)) {
@@ -274,7 +274,7 @@ function vincularAlertasYTrenes() {
                 marker.bindPopup(popup + '</div>');
             } else {
                 marker.setIcon(crearIcono('#4a90e2'));
-                marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
+                marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted-aviso">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
             }
         });
     });
