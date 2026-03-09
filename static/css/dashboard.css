@@ -1,0 +1,75 @@
+/* RenfeNow Dashboard — estilos principales */
+
+body { background-color: #0f1d2e; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; overflow: hidden; }
+.text-muted { color: rgb(202 219 236 / 75%) !important; }
+.top-navbar { background-color: #0b1622; border-bottom: 1px solid #1f2d3d; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+.brand-title { color: #4a90e2; font-weight: 700; font-size: 1.25rem; margin: 0; }
+#map-container { position: relative; height: calc(100vh - 60px); width: 100%; }
+#map { height: 100%; width: 100%; z-index: 1; }
+/* Tabla de horarios ADIF */
+.table { --bs-table-accent-bg: #0b1322 !important;}
+.table-responsive {    overflow-x: auto;    -webkit-overflow-scrolling: touch;    border-radius: 12px!important;    border: 1px solid #233652!important;    background-color: #162438; }
+/* Paneles flotantes */
+.map-overlays { position: absolute; top: 15px; right: 15px; width: 320px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; pointer-events: none; }
+.map-panel { background-color: #162438; border: 1px solid #233652; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); overflow: hidden; pointer-events: auto; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); color: #e0e0e0; }
+.panel-header { padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; border-bottom: 1px solid transparent; }
+.panel-body { max-height: 0; overflow-y: auto; transition: max-height 0.4s ease-out; opacity: 0; }
+.map-panel.is-open .panel-body { max-height: 50vh; opacity: 1; border-top: 1px solid #233652; }
+.toggle-icon { transition: transform 0.3s; }
+.map-panel.is-open .toggle-icon { transform: rotate(180deg); }
+#panel-avisos .panel-header { background: #dc3545; color: white; }
+#panel-avisos.hidden { display: none; }
+#panel-flota .panel-header { background-color: #162438; color: #4a90e2; }
+.list-group-item { background-color: transparent; color: #b0b8c4; border-bottom: 1px solid #233652; }
+.list-group-item:hover { background-color: #1f2d3d; color: #ffffff; }
+.table{--bs-table-accent-bg:#0b1622!important;}
+/* Autocompletar */
+.autocomplete-wrapper { position: relative; }
+.autocomplete-results { position: absolute; top: 100%; left: 0; right: 0; z-index: 2500; background-color: #1f2d3d; border: 1px solid #4a90e2; border-top: none; border-radius: 0 0 6px 6px; max-height: 250px; overflow-y: auto; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
+.autocomplete-item { padding: 10px 12px; cursor: pointer; color: #e0e0e0; font-size: 0.9rem; border-bottom: 1px solid #233652; display: flex; justify-content: space-between; }
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover { background-color: #2a3f5a; color: #fff; }
+.btn-clear-input { position: absolute; right: 10px; top: 32px; background: none; border: none; color: #b0b8c4; cursor: pointer; display: none; }
+.btn-clear-input:hover { color: #fff; }
+
+/* Icono estación */
+.icono-estacion-svg { background-color: #bbd4f0; mask: url('/static/images/estacion.svg') no-repeat center / contain; -webkit-mask: url('/static/images/estacion.svg') no-repeat center / contain; width: 16px; height: 16px; }
+
+/* Bottom sheet horarios */
+#site-footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 34px; background-color: #0b1622; border-top: 1px solid #233652; z-index: 2999; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 20px; }
+#site-footer span { color: #b0b8c4; font-size: 0.75rem; }
+#site-footer a { color: #4a90e2; font-size: 0.75rem; text-decoration: none; }
+#site-footer a:hover { text-decoration: underline; }
+#site-footer .sep { color: #2a3f5a; }
+#bottom-sheet { position: fixed; bottom: 34px; left: 0; width: 100%; background-color: #162438; border-top: 3px solid #4a90e2; z-index: 1998; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(calc(100% - 50px)); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); border-radius: 16px 16px 0 0; }
+#bottom-sheet.is-expanded { transform: translateY(0); }
+.sheet-header { height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #4a90e2; font-size: 1.1rem; font-weight: 700; user-select: none; }
+.sheet-content { height: 45vh; padding: 20px; overflow-y: auto; background-color: #0b1622; }
+.table-adif { color: #d5e9ff; font-size: 0.95rem; border-collapse: separate; border-spacing: 0; }
+.table-adif th { color: #4a90e2; border-bottom: 2px solid #1a3050; background: #0d1b2a; position: sticky; top: 0; z-index: 10; padding: 10px 12px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.table-adif td { border-bottom: 0px solid #1a2d42; vertical-align: top; padding: 10px 12px; }
+.table-adif tbody tr { transition: background 0.15s; }
+.table-adif tbody tr:hover { background-color: #172336; }
+.hora-salida { color: #4a90e2; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+.hora-origen { color: #a8c0d6; font-size: 0.7rem; margin-top: 4px; font-style: italic; }
+.paradas-list { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
+.parada-chip { background: #0d1b2a; border: 1px solid #1f3450; border-radius: 4px; padding: 1px 7px; font-size: 0.7rem; color: #7a9bbf; white-space: nowrap; }
+.via-glow { color: #f39c12; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 8px rgba(243,156,18,0.4); }
+.filtro-tipo { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; border: 1px solid #2a4060; background: #0d1b2a; color: #6a8aaa; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.18s; user-select: none; }
+.filtro-tipo:hover { border-color: #4a90e2; color: #b0d0f0; }
+.filtro-tipo.activo { background: #162d4a; border-color: #4a90e2; color: #e0f0ff; box-shadow: 0 0 8px rgba(74,144,226,0.2); }
+.filtro-tipo .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; opacity: 0.5; transition: opacity 0.18s; }
+.filtro-tipo.activo .dot { opacity: 1; }
+.filtros-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 6px 0; }
+.dest-nombre { color: #a8c0d6; font-weight: 600; font-size: 0.95rem; }
+.leaflet-container { background: #0f1d2e; }
+
+@media (max-width: 768px) {
+    .map-overlays { width: calc(100% - 90px); left: 70px; right: 15px; }
+    .sheet-header { font-size: 0.8rem; }
+    #bottom-sheet { bottom: 28px; }
+    #site-footer { height: 28px; gap: 4px; padding: 0 12px; }
+    #site-footer .sep { display: none; }
+    #site-footer span:not(.sep) { display: none; }
+    #site-footer a { font-size: 0.7rem; }
+}
