@@ -12,6 +12,7 @@
     <style>
         body { background-color: #0f1d2e; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; overflow: hidden; }
         .text-muted { color: rgb(202 219 236 / 75%) !important; }
+        .text-muted-aviso{ color: #2a3f5a; font-size: 0.75rem;  }
         .top-navbar { background-color: #0b1622; border-bottom: 1px solid #1f2d3d; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; height: 60px; }
         .brand-title { color: #4a90e2; font-weight: 700; font-size: 1.25rem; margin: 0; }
         #map-container { position: relative; height: calc(100vh - 60px); width: 100%; }
@@ -378,7 +379,7 @@ function procesarTrenes(trenes) {
             marcadores[tren.id].setLatLng([tren.lat, tren.lon]);
         } else {
             const marker = L.marker([tren.lat, tren.lon], {icon: crearIcono('#4a90e2')}).addTo(map);
-            marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
+            marker.bindPopup(`<div style="color:#333;"><strong style="color:#4a90e2;">Línea ${tren.linea}</strong> <span class="text-muted-aviso">(${tren.provincia})</span><br><small>${tren.nombre}</small></div>`);
             marcadores[tren.id] = marker;
         }
 
