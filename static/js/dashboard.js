@@ -180,7 +180,7 @@ async function cargarEstaciones() {
             const marker = L.marker([est.lat, est.lon], {icon, zIndexOffset: -100});
             marker.bindPopup(`<div style="color:#333;min-width:200px;">
                 <strong style="color:#162438;"><i class="fas fa-building text-secondary"></i> ${est.nombre}</strong>
-                <hr><small class="text-muted">${est.direccion}</small><br>
+                <hr><small class="text-muted-aviso">${est.direccion}</small><br>
                 <small><strong>${est.poblacion}</strong> (${est.provincia})</small></div>`);
             layerEstaciones.addLayer(marker);
             window.marcadoresEstaciones[est.codigo] = marker;
