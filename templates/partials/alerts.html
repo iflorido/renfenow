@@ -1,0 +1,24 @@
+{% if avisos %}
+    {% for aviso in avisos %}
+    <div class="list-group-item alerta-item" data-lineas="{{ aviso.lineas }}" style="border-left: 4px solid #fd7e14; background-color: #162438; margin-bottom: 10px; border-radius: 6px; padding: 12px; transition: all 0.3s;">
+        <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-exclamation-circle icono-alerta me-2" style="color: #fd7e14; font-size: 1.1rem; transition: color 0.3s;"></i>
+            <strong style="color: #e0e0e0; font-size: 0.95rem;">
+                {{ aviso.titulo }}
+            </strong>
+        </div>
+        <div class="text-secondary" style="font-size: 0.85rem; line-height: 1.4; color: #b0b8c4 !important;">
+            {{ aviso.descripcion }}
+        </div>
+        {% if aviso.lineas %}
+        <div class="mt-2 text-end">
+            <span class="badge bg-secondary" style="font-size: 0.65rem;">Líneas afectadas: {{ aviso.lineas }}</span>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="p-3 text-center text-success">
+        <i class="fas fa-check-circle me-2"></i> No hay incidencias activas en este momento.
+    </div>
+{% endif %}
