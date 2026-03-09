@@ -107,7 +107,7 @@ renfenow/
 
 ### Catálogo de estaciones
 - **Fuente primaria:** CSV oficial ADIF (1.680 estaciones con lat/lon, nombre, provincia, CP)
-- **Fuente complementaria:** `station_catalog.json` (1.071 apeaderos de Cercanías sin coordenadas, generado desde el repositorio [pantallas-estaciones](https://pantallas-estaciones.vercel.app/))
+- **Fuente complementaria:** `station_catalog.json` (1.071 apeaderos de Cercanías sin coordenadas)
 - El endpoint `/api/estaciones/nombres` fusiona ambas fuentes con `@lru_cache` para servir un mapa `{codigo: nombre}` completo de 2.751 entradas
 
 ---
@@ -275,5 +275,5 @@ Desarrollador especializado en ingeniería de datos, automatización y aplicacio
 ---
 
 <div align="center">
-  <sub>Desarrollado con ❤️ por <a href="https://automaworks.es">Automa Works</a></sub>
+  <sub>Desarrollado con ❤️ para <a href="https://automaworks.es">AutomaWorks</a></sub>
 </div>
