@@ -173,17 +173,16 @@
                 <table class="table table-borderless table-adif w-100">
                     <thead>
                         <tr>
-                            <th style="width:10%;">Hora</th>
-                            <th style="width:18%;">Producto</th>
-                            <th style="width:35%;">Destino</th>
-                            <th style="width:22%;">Paradas</th>
-                            <th class="text-center" style="width:7%;">Vía</th>
-                            <th class="text-end" style="width:8%;">Estado</th>
+                            <th style="width:9%;">Hora</th>
+                            <th style="width:16%;">Producto</th>
+                            <th>Destino / Paradas</th>
+                            <th class="text-center" style="width:6%;">Vía</th>
+                            <th class="text-end" style="width:12%;">Estado</th>
                         </tr>
                     </thead>
                     <tbody id="adif-tbody">
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-5">
+                            <td colspan="5" class="text-center text-muted py-5">
                                 <i class="fas fa-train fa-3x mb-3 opacity-50"></i><br>
                                 Selecciona una Estación de Origen para ver los trenes
                             </td>
@@ -200,6 +199,20 @@
 <script src="https://unpkg.com/@microsoft/signalr@7.0.5/dist/browser/signalr.min.js"></script>
 
 <script>
+// ============================================================
+// Mapa código → nombre, construido en cargarEstaciones() desde /api/estaciones
+// y completado con /api/estaciones/nombres para apeaderos sin coordenadas.
+window._stationNamesMap = {};
+
+function stationName(cod) {
+    if (!cod) return '';
+    const c = String(cod).replace(/^0+/, '');
+    const c5 = String(cod).padStart(5, '0');
+    return window._stationNamesMap[c5]
+        || window._stationNamesMap[c]
+        || ('Est.' + cod);
+}
+
 // ============================================================
 // VARIABLES GLOBALES
 // ============================================================
@@ -335,9 +348,25 @@ function procesarTrenes(trenes) {
 // ============================================================
 async function cargarEstaciones() {
     try {
-        const res       = await fetch('/api/estaciones');
-        const estaciones = await res.json();
+        // Cargar estaciones con coordenadas (CSV propio) y catálogo de nombres
+        const [resEst, resNombres] = await Promise.all([
+            fetch('/api/estaciones'),
+            fetch('/api/estaciones/nombres')
+        ]);
+        const estaciones = await resEst.json();
+        const nombresExtra = await resNombres.json();
+
         window.todasLasEstaciones = estaciones;
+
+        // Construir mapa código→nombre a partir de las estaciones cargadas
+        // Fuente primaria: CSV propio (con coordenadas y nombres correctos)
+        estaciones.forEach(est => {
+            if (est.codigo) {
+                window._stationNamesMap[est.codigo.padStart(5, '0')] = est.nombre;
+            }
+        });
+        // Fuente secundaria: apeaderos de Cercanías sin coordenadas GPS
+        Object.assign(window._stationNamesMap, nombresExtra);
         const provinciasSet = new Set();
 
         estaciones.forEach(est => {
@@ -696,18 +725,18 @@ function getProductoBadge(tren) {
     return { badge: 'bg-secondary', nombre: product || tipo || '?' };
 }
 
-// Extrae línea de Cercanías limpia (ej: "C-3") desde destinations[0].line
+// Extrae línea de Cercanías limpia (ej: "C-5") desde commercial_id[0].product
+// El product viene como "C05CERMAD" → limpiamos sufijos → "C05" → "C-5"
 function getLineaCercanias(tren) {
-    const raw = tren.destinations?.[0]?.line || '';
+    if (tren.traffic_type !== 'C') return '';
+    const raw = tren.commercial_id?.[0]?.product
+             || tren.destinations?.[0]?.line
+             || '';
     if (!raw) return '';
-    const limpia = raw
-        .replace(/ROD[A-Z0-9]*/g, '')
-        .replace(/CER[A-Z0-9]*/g, '')
-        .replace(/TRA[A-Z0-9]*/g, '')
-        .replace(/CIVGUACHA/g, 'CIVIS')
-        .trim();
-    // Formatear como "C-3" si es un código de línea
-    return limpia.replace(/([A-Z])0?([1-9])/g, '$1-$2').toUpperCase();
+    // Quitar sufijos como CERMAD, CERBAR, etc. → quedarnos con "C05", "C10"...
+    const limpia = raw.replace(/CER[A-Z]*/g, '').replace(/MAD|BAR|VAL|SEV|BIL|ZAR|AST|MDR/g, '').trim();
+    // Formatear C05 → C-5, C10 → C-10
+    return limpia.replace(/([A-Z]+)0*([1-9][0-9]?)/g, '$1-$2').toUpperCase();
 }
 
 function renderizarTeleindicador() {
@@ -718,64 +747,101 @@ function renderizarTeleindicador() {
     tbody.innerHTML = '';
 
     let filtrados = trenesAdifActuales || [];
+
+    // Filtrar por destino: buscar en el nombre resuelto del destino
     if (destinoSelec) {
-        filtrados = filtrados.filter(t =>
-            (t.destinations || []).some(d => d.name && d.name.toLowerCase().includes(destinoSelec))
-        );
+        filtrados = filtrados.filter(t => {
+            const destCode = t.destinations?.[0]?.code;
+            const destNombre = stationName(destCode).toLowerCase();
+            return destNombre.includes(destinoSelec);
+        });
     }
 
     if (filtrados.length === 0) {
-        const colspan = 6;
         tbody.innerHTML = trenesAdifActuales.length === 0
-            ? `<tr><td colspan="${colspan}" class="text-center text-muted py-4">ADIF no reporta trenes en este momento para esta estación.</td></tr>`
-            : `<tr><td colspan="${colspan}" class="text-center text-muted py-4">Ningún tren coincide con el destino "<strong>${destinoSelec}</strong>".</td></tr>`;
+            ? `<tr><td colspan="6" class="text-center text-muted py-4">ADIF no reporta trenes en este momento para esta estación.</td></tr>`
+            : `<tr><td colspan="6" class="text-center text-muted py-4">Ningún tren coincide con el destino "<strong>${destinoSelec}</strong>".</td></tr>`;
         return;
     }
 
     filtrados.forEach(tren => {
-        const hora    = formatHora(tren.departure_time || tren.arrival_time);
-        const destino = tren.destinations?.[0]?.name || 'Desconocido';
-        const via     = tren.platform || '-';
-        const linea   = getLineaCercanias(tren);
-        const prod    = getProductoBadge(tren);
+        // ── Hora ──────────────────────────────────────────────────────────
+        // departure_time = hora de salida desde esta estación (lo que muestra el panel)
+        const hora = formatHora(tren.departure_time || tren.arrival_time);
 
-        // Paradas intermedias: tomar destinations[0].stops o destinations array
-        let paradas = [];
-        const stops = tren.destinations?.[0]?.stops;
-        if (Array.isArray(stops) && stops.length > 0) {
-            // stops puede ser array de strings o de objetos {name}
-            paradas = stops.map(s => (typeof s === 'string' ? s : s.name)).filter(Boolean);
-        } else if (Array.isArray(tren.destinations) && tren.destinations.length > 1) {
-            paradas = tren.destinations.slice(1).map(d => d.name).filter(Boolean);
+        // ── Destino final ─────────────────────────────────────────────────
+        // destinations[0].code contiene el código de la estación final
+        const destCode  = tren.destinations?.[0]?.code;
+        const destNombre = stationName(destCode) || `Est.${destCode || '?'}`;
+
+        // ── Vía ───────────────────────────────────────────────────────────
+        const via = tren.platform || tren.platform_in || '-';
+
+        // ── Línea Cercanías ───────────────────────────────────────────────
+        const linea = getLineaCercanias(tren);
+
+        // ── Producto / badge ──────────────────────────────────────────────
+        const prod = getProductoBadge(tren);
+
+        // ── Número comercial ──────────────────────────────────────────────
+        // commercial_id[0].numbers[0] tiene el número visible en los paneles
+        const numTren = tren.commercial_id?.[0]?.numbers?.[0]
+                     || tren.technical_number_out
+                     || tren.technical_number_planif
+                     || '';
+
+        // ── Cuenta atrás / retraso ────────────────────────────────────────
+        // countdown = minutos para la salida; delay_out = retraso en segundos
+        const countdown  = tren.countdown;       // número o null
+        const delaySeg   = tren.delay_out || 0;  // segundos
+        const delayMin   = Math.round(delaySeg / 60);
+
+        let estado;
+        if (typeof countdown === 'number' && countdown >= 0 && countdown <= 60) {
+            // Mostrar cuenta atrás si está disponible y es razonable
+            if (countdown === 0) {
+                estado = `<span class="text-warning fw-bold" style="font-size:0.85rem;"><i class="fas fa-train"></i> Saliendo</span>`;
+            } else {
+                estado = `<span style="color:#4a90e2; font-size:0.85rem; font-weight:bold;">${countdown} min</span>`;
+            }
+            if (delayMin > 0) {
+                estado += `<br><span class="text-danger" style="font-size:0.75rem;">+${delayMin}min retraso</span>`;
+            }
+        } else if (delayMin > 0) {
+            estado = `<span class="text-danger fw-bold" style="font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> +${delayMin}min</span>`;
+        } else {
+            estado = `<span class="text-success" style="font-size:0.85rem;"><i class="fas fa-check-circle"></i> En hora</span>`;
         }
 
-        // Número comercial del tren
-        const numTren = tren.commercial_id?.[0]?.number || tren.number || '';
+        // ── Paradas intermedias ───────────────────────────────────────────
+        // journey_stops_destination contiene los códigos de paradas hasta el destino
+        const stopsRaw = tren.journey_stops_destination || [];
+        const paradas  = stopsRaw
+            .map(s => stationName(s.code))
+            .filter(Boolean);
+        // Excluir la última (ya es el destino final)
+        const paradasSinFinal = paradas.slice(0, -1);
 
-        const estado = (tren.delay > 0)
-            ? `<span class="text-danger fw-bold" style="font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> +${tren.delay}min</span>`
-            : `<span class="text-success" style="font-size:0.85rem;"><i class="fas fa-check-circle"></i> En hora</span>`;
-
-        // Cabecera del producto: badge + línea cercanías (si aplica) + número de tren
-        const badgeProd = `<span class="badge ${prod.badge}" style="font-size:0.75rem;">${prod.nombre}</span>`;
-        const badgeLinea = linea ? `<span class="badge bg-dark border ms-1" style="font-size:0.75rem; color:#4a90e2;">${linea}</span>` : '';
-        const numHtml   = numTren ? `<div style="color:#6c757d; font-size:0.72rem; margin-top:2px;">${numTren}</div>` : '';
-
-        // Paradas: mostrar como pills pequeños
-        const paradasHtml = paradas.length > 0
-            ? `<div style="font-size:0.72rem; color:#6c757d; margin-top:3px; line-height:1.6;">
-                ${paradas.slice(0, 5).map(p => `<span style="margin-right:4px;">· ${p}</span>`).join('')}
-                ${paradas.length > 5 ? `<span style="color:#4a90e2;">+${paradas.length - 5} más</span>` : ''}
+        const paradasHtml = paradasSinFinal.length > 0
+            ? `<div style="font-size:0.72rem; color:#8a9bb0; line-height:1.7;">
+                ${paradasSinFinal.map(p => `<span style="margin-right:6px;">· ${p}</span>`).join('')}
                </div>`
-            : '<span style="color:#444; font-size:0.75rem;">—</span>';
+            : `<span style="color:#3a4a5a; font-size:0.75rem;">—</span>`;
+
+        // ── HTML de la fila ───────────────────────────────────────────────
+        const badgeProd  = `<span class="badge ${prod.badge}" style="font-size:0.75rem;">${prod.nombre}</span>`;
+        const badgeLinea = linea ? `<span class="badge bg-dark border ms-1" style="font-size:0.72rem; color:#4a90e2; border-color:#233652 !important;">${linea}</span>` : '';
+        const numHtml    = numTren ? `<div style="color:#5a7a9a; font-size:0.72rem; margin-top:3px; font-family:monospace;">#${numTren}</div>` : '';
 
         tbody.innerHTML += `<tr>
-            <td class="fw-bold" style="color:#4a90e2; font-size:1.15rem; white-space:nowrap;">${hora}</td>
-            <td>${badgeProd}${badgeLinea}${numHtml}</td>
-            <td class="fw-bold" style="color:#e0e0e0;">${destino}</td>
-            <td>${paradasHtml}</td>
-            <td class="text-center"><span class="via-glow">${via}</span></td>
-            <td class="text-end">${estado}</td>
+            <td class="fw-bold" style="color:#4a90e2; font-size:1.15rem; white-space:nowrap; vertical-align:top; padding-top:14px;">${hora}</td>
+            <td style="vertical-align:top; padding-top:12px;">${badgeProd}${badgeLinea}${numHtml}</td>
+            <td style="vertical-align:top; padding-top:12px;">
+                <div class="fw-bold" style="color:#e0e0e0;">${destNombre}</div>
+                ${paradasHtml}
+            </td>
+            <td class="text-center" style="vertical-align:top; padding-top:14px;"><span class="via-glow">${via}</span></td>
+            <td class="text-end" style="vertical-align:top; padding-top:12px;">${estado}</td>
         </tr>`;
     });
 }

@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import re
+from functools import lru_cache
 from contextlib import asynccontextmanager
 
 import httpx
@@ -130,6 +131,45 @@ async def get_vehiculos():
                 "provincia":   provincia,
             })
     return JSONResponse(content=trenes)
+
+
+@app.get("/api/estaciones/nombres")
+async def get_nombres_estaciones():
+    """
+    Devuelve un mapa {codigo: nombre} de todas las estaciones conocidas.
+    Fusiona el CSV propio (con coordenadas) con el catálogo ADIF completo
+    (que incluye apeaderos de Cercanías sin coordenadas GPS).
+    """
+    return JSONResponse(content=_build_station_names())
+
+
+@lru_cache(maxsize=1)
+def _build_station_names() -> dict:
+    nombres: dict[str, str] = {}
+
+    # 1. Fuente primaria: nuestro CSV (tiene nombres en español correcto)
+    file_path = os.path.join("data", "estaciones.csv")
+    if os.path.exists(file_path):
+        with open(file_path, mode="r", encoding="latin-1") as f:
+            reader = csv.DictReader(f, delimiter=";")
+            for row in reader:
+                code = row.get("CODIGO", "").strip().zfill(5)
+                name = row.get("DESCRIPCION", "").strip().title()
+                if code:
+                    nombres[code] = name
+
+    # 2. Fuente secundaria: catálogo ADIF extendido (apeaderos Cercanías, etc.)
+    #    Solo añadimos los códigos que no están en el CSV
+    catalog_path = os.path.join("data", "station_catalog.json")
+    if os.path.exists(catalog_path):
+        with open(catalog_path, encoding="utf-8") as f:
+            catalog = json.load(f)
+        for code, name in catalog.items():
+            c = code.zfill(5)
+            if c not in nombres:
+                nombres[c] = name
+
+    return nombres
 
 
 @app.get("/api/estaciones")
