@@ -63,6 +63,21 @@ body { background-color: #0f1d2e; color: #ffffff; font-family: 'Segoe UI', Tahom
 .filtros-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 6px 0; }
 .dest-nombre { color: #a8c0d6; font-weight: 600; font-size: 0.95rem; }
 .leaflet-container { background: #0f1d2e; }
+/* Personalización de los placeholders */
+#buscador-estaciones::placeholder {
+  color: #9aa7b5; /* color del placeholder */
+  opacity: 1; /* evita que algunos navegadores lo aclaren */
+}
+
+#adif-origen-input::placeholder {
+  color: #9aa7b5; /* color del placeholder */
+  opacity: 1; /* evita que algunos navegadores lo aclaren */
+}
+
+#adif-destino-input::placeholder {
+  color: #9aa7b5; /* color del placeholder */
+  opacity: 1; /* evita que algunos navegadores lo aclaren */
+}
 
 @media (max-width: 768px) {
     .map-overlays { width: calc(100% - 90px); left: 70px; right: 15px; }
