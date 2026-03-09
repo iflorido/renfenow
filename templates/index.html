@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Renfe Realtime Dashboard | Automa Works</title>
+    <title>Renfe Realtime Dashboard | AutomaWorks</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -46,7 +46,12 @@
         .icono-estacion-svg { background-color: #bbd4f0; mask: url('/static/images/estacion.svg') no-repeat center / contain; -webkit-mask: url('/static/images/estacion.svg') no-repeat center / contain; width: 16px; height: 16px; }
 
         /* Bottom sheet horarios */
-        #bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #162438; border-top: 3px solid #4a90e2; z-index: 2000; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(calc(100% - 50px)); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); border-radius: 16px 16px 0 0; }
+        #site-footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 34px; background-color: #0b1622; border-top: 1px solid #233652; z-index: 1999; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 20px; }
+        #site-footer span { color: #b0b8c4; font-size: 0.75rem; }
+        #site-footer a { color: #4a90e2; font-size: 0.75rem; text-decoration: none; }
+        #site-footer a:hover { text-decoration: underline; }
+        #site-footer .sep { color: #2a3f5a; }
+        #bottom-sheet { position: fixed; bottom: 34px; left: 0; width: 100%; background-color: #162438; border-top: 3px solid #4a90e2; z-index: 2000; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(calc(100% - 50px)); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); border-radius: 16px 16px 0 0; }
         #bottom-sheet.is-expanded { transform: translateY(0); }
         .sheet-header { height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #4a90e2; font-size: 1.1rem; font-weight: 700; user-select: none; }
         .sheet-content { height: 45vh; padding: 20px; overflow-y: auto; background-color: #0b1622; }
@@ -78,7 +83,7 @@
 
 <div class="top-navbar">
     <h1 class="brand-title"><i class="fas fa-train me-2"></i> Renfe Realtime Dashboard</h1>
-    <small class="text-muted">Desarrollado por Automa Works</small>
+    <small class="text-muted">Desarrollado por AutomaWorks</small>
 </div>
 
 <div id="map-container">
@@ -227,6 +232,18 @@
         </div>
     </div>
 </div>
+
+<!-- Footer -->
+<footer id="site-footer">
+    <span>Desarrollado por</span>
+    <a href="https://automaworks.es" target="_blank">automaworks.es</a>
+    <span class="sep">·</span>
+    <span>Posiciones GTFS-RT en tiempo real</span>
+    <span class="sep">·</span>
+    <span>Horarios ADIF vía SignalR</span>
+    <span class="sep">·</span>
+    <span>FastAPI + Leaflet</span>
+</footer>
 
 <!-- Librerías JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
